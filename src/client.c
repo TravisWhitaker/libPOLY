@@ -1,6 +1,7 @@
 // libPOLY Copyright (C) Travis Whitaker 2014
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <errno.h>
 
@@ -36,22 +37,22 @@ int poly_init(int bitdepth, int channels, int bitrate, const char *filename)
 	// Initialize libao:
 	ao_initialize();
 
-	ao_device *card;
-	ao_sample_format *format;
+	ao_device *poly_card;
+	ao_sample_format *poly_format;
 	int driver;
 
 	// Populate the format struct:
-	format = calloc(1, sizeof(*format));
-	if(format == NULL)
+	poly_format = calloc(1, sizeof(*poly_format));
+	if(poly_format == NULL)
 	{
-		DEBUG_MSG("calloc for *format failed");
+		DEBUG_MSG("calloc for *poly_format failed");
 		errno = ENOMEM;
 		return 1;
 	}
-	format->bits = bitdepth;
-	format->channels = channels;
-	format->rate = bitrate;
-	format.byte_format = AO_FMT_NATIVE;
+	poly_format->bits = bitdepth;
+	poly_format->channels = channels;
+	poly_format->rate = bitrate;
+	poly_format->byte_format = AO_FMT_NATIVE;
 
 	// Are we using a sound card?
 	if(filename == NULL)
@@ -62,7 +63,7 @@ int poly_init(int bitdepth, int channels, int bitrate, const char *filename)
 		{
 			DEBUG_MSG("ao_default_driver_id() failed");
 			errno = ENODEV;
-			free(format);
+			free(poly_format);
 			return 1;
 		}
 #else
@@ -71,12 +72,12 @@ int poly_init(int bitdepth, int channels, int bitrate, const char *filename)
 		{
 			DEBUG_MSG("ao_driver_id() failed");
 			errno = ENODEV;
-			free(format);
+			free(poly_format);
 			return 1;
 		}
 #endif
-		card = ao_open_live(driver, format, NULL)
-		if(card == NULL)
+		poly_card = ao_open_live(driver, poly_format, NULL);
+		if(poly_card == NULL)
 		{
 			switch(errno)
 			{
@@ -96,7 +97,7 @@ int poly_init(int bitdepth, int channels, int bitrate, const char *filename)
 				DEBUG_MSG("unknown libao error");
 				break;
 			}
-			free(format);
+			free(poly_format);
 			return 1;
 		}
 	}
@@ -108,11 +109,11 @@ int poly_init(int bitdepth, int channels, int bitrate, const char *filename)
 		{
 			DEBUG_MSG("libao error, can't open WAV driver");
 			errno = ENODEV;
-			free(format);
+			free(poly_format);
 			return 1;
 		}
-		card = ao_open_file(driver, filename, 1, format, NULL);
-		if(card == NULL)
+		poly_card = ao_open_file(driver, filename, 1, poly_format, NULL);
+		if(poly_card == NULL)
 		{
 			switch(errno)
 			{
@@ -132,13 +133,10 @@ int poly_init(int bitdepth, int channels, int bitrate, const char *filename)
 				DEBUG_MSG("unknown libao error");
 				break;
 			}
-			free(format);
+			free(poly_format);
 			return 1;
 		}
 	}
 
-	// Set global variables:
-	poly_card = card;
-	poly_format = format;
 	return 0;
 }

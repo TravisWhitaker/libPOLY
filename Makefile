@@ -26,7 +26,7 @@ endif
 all: libpoly.a
 
 libpoly.a: client.o
-	$(AR) $(ARFLAGS) client.o
+	$(AR) $(ARFLAGS) libpoly.a client.o
 
 client.o: src/client.c
 	$(CC) -c $(CFLAGS) $(INCLUDE) $(FPIC) src/client.c

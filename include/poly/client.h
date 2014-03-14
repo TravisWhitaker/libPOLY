@@ -3,6 +3,6 @@
 #ifndef POLY_CLIENT_H
 #define POLY_CLIENT_H
 
-int poly_init(int bitdepth, int channels, int bitrate);
+int poly_init(int bitdepth, int channels, int bitrate, const char *filename);
 
 #endif
