@@ -3,6 +3,9 @@
 #ifndef POLY_H
 #define POLY_H
 
-int poly_init(int bitdepth, int channels, int bitrate, const char *filename);
+int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename);
+void poly_shutdown();
+int poly_start();
+void poly_stop();
 
 #endif

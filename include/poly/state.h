@@ -3,8 +3,44 @@
 #ifndef POLY_STATE_H
 #define POLY_STATE_H
 
+#define GEN_ON 0xff
+#define GEN_OFF 0x00
+
+typedef enum
+{
+	sine,
+	square,
+	triangle,
+	saw,
+	sample,
+	loopsample
+} poly_wavetype;
+
+typedef struct
+{
+	char init;
+	poly_wavetype wavetype;
+	float amplitude;
+	float freq;
+	float phase;
+	int sample_bitdepth;
+	int sample_length;
+	char *sample;
+} poly_gen;
+
+// Pointer to generator thread main loop:
+extern void *poly_gen_kernel(void *ptr);
+
+// libao stuff:
+extern char poly_ao_init;
 extern ao_device *poly_card;
 extern ao_sample_format *poly_format;
+
+// Playback bookkeeping:
+extern pthread_t poly_thread;
+extern char poly_playback;
+extern int poly_max_generators;
+extern poly_gen *poly_generators;
 extern uint64_t poly_time;
 
 #endif
