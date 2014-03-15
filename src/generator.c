@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <math.h>
+
 #include <ao/ao.h>
 
 #include <poly/state.h>
@@ -92,6 +94,7 @@ void poly_set_R_amp(int index, float R_amp)
 
 void poly_set_freq(int index, float freq)
 {
+//	(poly_generators + index)->phase = (poly_generators + index)->phase + 2 * M_PI * ((poly_generators + index)->freq - freq);
 	(poly_generators + index)->freq = freq;
 	return;
 }
@@ -153,7 +156,7 @@ void *poly_gen_kernel(void *ptr)
 					switch(gen->wavetype)
 					{
 					case sine:
-						sample[chan] += poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase);
+						sample[chan] += poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/poly_max_generators;
 						break;
 					default:
 						break;
