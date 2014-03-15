@@ -9,7 +9,7 @@
 #include <poly/waveform.h>
 #include <poly/debug.h>
 
-int16_t poly_sine(float amplitude, float freq, float phase)
+float poly_sine(float amplitude, float freq, float phase)
 {
-	return (int16_t)(amplitude * POLY_MAX_AMP * sin((2.0 * M_PI * freq * ((float) poly_time/(poly_format->rate))) + phase));
+	return amplitude * POLY_MAX_AMP * sin((2.0 * M_PI * freq * ((float) poly_time/(poly_format->rate))) + phase);
 }

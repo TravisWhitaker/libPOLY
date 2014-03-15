@@ -30,6 +30,7 @@ int poly_get_sample_length(int index);
 char *poly_get_sample(int index);
 
 void poly_mute(int index);
+void poly_unmute(int index);
 void poly_set_wavetype(int index, poly_wavetype wavetype);
 void poly_set_amplitude(int index, float amplitude);
 void poly_set_L_amp(int index, float L_amp);

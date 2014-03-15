@@ -68,6 +68,12 @@ void poly_mute(int index)
 	return;
 }
 
+void poly_unmute(int index)
+{
+	(poly_generators + index)->init = 1;
+	return;
+}
+
 void poly_set_wavetype(int index, poly_wavetype wavetype)
 {
 	(poly_generators + index)->wavetype = wavetype;
@@ -94,7 +100,6 @@ void poly_set_R_amp(int index, float R_amp)
 
 void poly_set_freq(int index, float freq)
 {
-//	(poly_generators + index)->phase = (poly_generators + index)->phase + 2 * M_PI * ((poly_generators + index)->freq - freq);
 	(poly_generators + index)->freq = freq;
 	return;
 }
@@ -156,7 +161,7 @@ void *poly_gen_kernel(void *ptr)
 					switch(gen->wavetype)
 					{
 					case sine:
-						sample[chan] += poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/poly_max_generators;
+						sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float) poly_max_generators));
 						break;
 					default:
 						break;

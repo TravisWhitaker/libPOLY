@@ -6,6 +6,6 @@
 
 #define POLY_MAX_AMP 32768.0
 
-int16_t poly_sine(float amplitude, float freq, float phase);
+float poly_sine(float amplitude, float freq, float phase);
 
 #endif
