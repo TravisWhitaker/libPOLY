@@ -13,6 +13,16 @@
 #include <poly/client.h>
 #include <poly/debug.h>
 
+char poly_ao_init;
+ao_device *poly_card;
+ao_sample_format *poly_format;
+
+pthread_t poly_thread;
+char poly_playback;
+int poly_max_generators;
+poly_gen *poly_generators;
+uint64_t poly_time;
+
 // Initialize the libPOLY global state. Return 0 on success.
 int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename)
 {
@@ -44,15 +54,11 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 
 	// Initialize libao:
 	ao_initialize();
-	char poly_ao_init = 1; ((void)poly_ao_init);
-	ao_device *poly_card;
-	ao_sample_format *poly_format;
+	poly_ao_init = 1;
 
-	pthread_t *poly_thread; ((void)poly_thread);
-	char poly_playback = 0; ((void)poly_playback);
-	int poly_max_generators = max_generators;
-	poly_gen *poly_generators;
-	uint64_t poly_time = 0; ((void)poly_time);
+	poly_playback = 0;
+	poly_max_generators = max_generators;
+	poly_time = 0;
 
 	int driver;
 
@@ -160,6 +166,7 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 
 void poly_shutdown()
 {
+	poly_stop();
 	if(poly_card != NULL)
 	{
 		ao_close(poly_card);
@@ -189,12 +196,29 @@ int poly_start()
 		DEBUG_MSG("called poly_start() but playback was in progress");
 		return 0;
 	}
-	if(!pthread_create(&poly_thread, NULL, poly_gen_kernel, NULL))
+	poly_playback = 1;
+	int status = pthread_create(&poly_thread, NULL, poly_gen_kernel, NULL);
+	switch(status)
 	{
-		DEBUG_MSG("couldn't create playback thread");
+	case 0:
+		break;
+	case EAGAIN:
+		DEBUG_MSG("insufficient resources to create another thread(EAGAIN)");
+		poly_stop();
+		return 1;
+	case EINVAL:
+		DEBUG_MSG("invalid thread attributes(EINVAL)");
+		poly_stop();
+		return 1;
+	case EPERM:
+		DEBUG_MSG("insufficient privileges to create thread(EPERM)");
+		poly_stop();
+		return 1;
+	default:
+		DEBUG_MSG("unknown pthread_create error");
+		poly_stop();
 		return 1;
 	}
-	poly_playback = 1;
 	return 0;
 }
 
@@ -205,7 +229,8 @@ void poly_stop()
 		DEBUG_MSG("called poly_stop() but playback wasn't in progress");
 		return;
 	}
-	poly_playback = 1;
+	poly_playback = 0;
+	poly_time = 0;
 	pthread_join(poly_thread, NULL);
 	return;
 }

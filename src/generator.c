@@ -1,9 +1,11 @@
 // libPOLY Copyright (C) Travis Whitaker 2014
 #include <stdint.h>
+#include <string.h>
 
 #include <ao/ao.h>
 
 #include <poly/state.h>
+#include <poly/waveform.h>
 #include <poly/generator.h>
 #include <poly/debug.h>
 
@@ -21,6 +23,16 @@ poly_wavetype poly_get_wavetype(int index)
 float poly_get_amplitude(int index)
 {
 	return (poly_generators + index)->amplitude;
+}
+
+float poly_get_L_amp(int index)
+{
+	return (poly_generators + index)->matrix[0];
+}
+
+float poly_get_R_amp(int index)
+{
+	return (poly_generators + index)->matrix[1];
 }
 
 float poly_get_freq(int index)
@@ -50,7 +62,7 @@ char *poly_get_sample(int index)
 // Functions to set generator state.
 void poly_mute(int index)
 {
-	(poly_generators + index)->init = GEN_OFF;
+	(poly_generators + index)->init = 0;
 	return;
 }
 
@@ -63,6 +75,18 @@ void poly_set_wavetype(int index, poly_wavetype wavetype)
 void poly_set_amplitude(int index, float amplitude)
 {
 	(poly_generators + index)->amplitude = amplitude;
+	return;
+}
+
+void poly_set_L_amp(int index, float L_amp)
+{
+	(poly_generators + index)->matrix[0] = L_amp;
+	return;
+}
+
+void poly_set_R_amp(int index, float R_amp)
+{
+	(poly_generators + index)->matrix[1] = R_amp;
 	return;
 }
 
@@ -97,15 +121,50 @@ void poly_set_sample(int index, char *sample)
 }
 
 // Set all of a generator's state at once
-void poly_set_generator(int index, poly_wavetype wavetype, float amplitude, float freq, float phase, int sample_bitdepth, int sample_length, char *sample)
+void poly_set_generator(int index, poly_wavetype wavetype, float amplitude, float L_amp, float R_amp, float freq, float phase, int sample_bitdepth, int sample_length, char *sample)
 {
-	(poly_generators + index)->init = GEN_ON;
+	(poly_generators + index)->init = 1;
 	(poly_generators + index)->wavetype = wavetype;
 	(poly_generators + index)->amplitude = amplitude;
+	(poly_generators + index)->matrix[0] = L_amp;
+	(poly_generators + index)->matrix[1] = R_amp;
 	(poly_generators + index)->freq = freq;
 	(poly_generators + index)->phase = phase;
 	(poly_generators + index)->sample_bitdepth = sample_bitdepth;
 	(poly_generators + index)->sample_length = sample_length;
 	(poly_generators + index)->sample = sample;
 	return;
+}
+
+void *poly_gen_kernel(void *ptr)
+{
+	((void)ptr);
+	int16_t *sample = calloc(poly_format->channels, sizeof(*sample));
+	poly_gen *gen;
+	while(poly_playback == 1)
+	{
+		for(register int chan = 0; chan < poly_format->channels; chan++)
+		{
+			for(register int i = 0; i < poly_max_generators; i++)
+			{
+				gen = poly_generators + i;
+				if(gen->init == 1)
+				{
+					switch(gen->wavetype)
+					{
+					case sine:
+						sample[chan] += poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase);
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		}
+		poly_time++;
+		ao_play(poly_card, (char *)sample, (sizeof(int16_t) * poly_format->channels));
+		memset(sample, 0, (sizeof(int16_t) * poly_format->channels));
+	}
+	free(sample);
+	return NULL;
 }

@@ -25,8 +25,8 @@ endif
 .PHONY: all
 all: libpoly.a
 
-libpoly.a: client.o generator.o
-	$(AR) $(ARFLAGS) libpoly.a client.o generator.o
+libpoly.a: client.o generator.o waveform.o
+	$(AR) $(ARFLAGS) libpoly.a client.o generator.o waveform.o
 
 client.o: src/client.c
 	$(CC) -c $(CFLAGS) $(INCLUDE) $(FPIC) src/client.c
@@ -34,17 +34,23 @@ client.o: src/client.c
 generator.o: src/generator.c
 	$(CC) -c $(CFLAGS) $(INCLUDE) $(FPIC) src/generator.c
 
+waveform.o: src/waveform.c
+	$(CC) -c $(CFLAGS) $(INCLUDE) $(FPIC) src/waveform.c
+
 .PHONY: debug
 debug: libpolydebug.a
 
-libpolydebug.a: client.o.debug generator.o.debug
-	$(AR) $(ARFLAGS) client.o.debug generator.o.debug
+libpolydebug.a: client.o.debug generator.o.debug waveform.o.debug
+	$(AR) $(ARFLAGS) client.o.debug generator.o.debug waveform.o.debug
 
 client.o.debug: src/client.c
 	$(CC) -c $(DEBUG_CFLAGS) $(INCLUDE) $(FPIC) src/client.c -o client.o.debug
 
 generator.o.debug: src/generator.c
 	$(CC) -c $(DEBUG_CFLAGS) $(INCLUDE) $(FPIC) src/generator.c -o generator.o.debug
+
+waveform.o.debug: src/waveform.c
+	$(CC) -c $(DEBUG_CFLAGS) $(INCLUDE) $(FPIC) src/waveform.c -o waveform.o.debug
 
 .PHONY: clean
 clean:

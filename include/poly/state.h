@@ -3,9 +3,6 @@
 #ifndef POLY_STATE_H
 #define POLY_STATE_H
 
-#define GEN_ON 0xff
-#define GEN_OFF 0x00
-
 typedef enum
 {
 	sine,
@@ -18,9 +15,10 @@ typedef enum
 
 typedef struct
 {
-	char init;
+	unsigned char init;
 	poly_wavetype wavetype;
 	float amplitude;
+	float matrix[2];
 	float freq;
 	float phase;
 	int sample_bitdepth;
@@ -28,7 +26,7 @@ typedef struct
 	char *sample;
 } poly_gen;
 
-// Pointer to generator thread main loop:
+// Generator thread main loop:
 extern void *poly_gen_kernel(void *ptr);
 
 // libao stuff:
