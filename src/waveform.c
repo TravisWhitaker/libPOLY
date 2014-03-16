@@ -11,5 +11,5 @@
 
 float poly_sine(float amplitude, float freq, float phase)
 {
-	return amplitude * POLY_MAX_AMP * sin((2.0 * M_PI * freq * ((float) poly_time/(poly_format->rate))) + phase);
+	return amplitude * POLY_MAX_AMP * sin(2.0 * M_PI * (freq * ((float) poly_time/(poly_format->rate)) + phase));
 }

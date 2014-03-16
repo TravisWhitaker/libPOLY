@@ -16,11 +16,13 @@ typedef enum
 typedef struct
 {
 	unsigned char init;
+	unsigned char mute;
 	poly_wavetype wavetype;
 	float amplitude;
 	float matrix[2];
 	float freq;
 	float phase;
+	float duty_cycle;
 	int sample_bitdepth;
 	int sample_length;
 	char *sample;

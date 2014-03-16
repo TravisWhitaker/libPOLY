@@ -25,6 +25,7 @@ float poly_get_L_amp(int index);
 float poly_get_R_amp (int index);
 float poly_get_freq(int index);
 float poly_get_phase(int index);
+float poly_get_duty_cycle(int index);
 int poly_get_sample_bitdepth(int index);
 int poly_get_sample_length(int index);
 char *poly_get_sample(int index);
@@ -37,12 +38,11 @@ void poly_set_L_amp(int index, float L_amp);
 void poly_set_R_amp(int index, float R_amp);
 void poly_set_freq(int index, float freq);
 void poly_set_phase(int index, float phase);
+void poly_set_duty_cycle(int index, float duty_cycle);
 void poly_set_sample_bitdepth(int index, int sample_bitdepth);
 void poly_set_sample_length(int index, int sample_length);
 void poly_set_sample(int index, char *sample);
 
 void poly_set_generator(int index, poly_wavetype wavetype, float amplitute, float L_amp, float R_amp, float freq, float phase, int sample_bitdepth, int sample_length, char *sample);
-
-extern char poly_playback;
 
 #endif

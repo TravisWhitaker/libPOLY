@@ -47,6 +47,11 @@ float poly_get_phase(int index)
 	return (poly_generators + index)->phase;
 }
 
+float poly_get_duty_cycle(int index)
+{
+	return (poly_generators + index->duty_cycle;
+}
+
 int poly_get_sample_bitdepth(int index)
 {
 	return (poly_generators + index)->sample_bitdepth;
@@ -64,13 +69,13 @@ char *poly_get_sample(int index)
 // Functions to set generator state.
 void poly_mute(int index)
 {
-	(poly_generators + index)->init = 0;
+	(poly_generators + index)->mute = 1;
 	return;
 }
 
 void poly_unmute(int index)
 {
-	(poly_generators + index)->init = 1;
+	(poly_generators + index)->init = 0;
 	return;
 }
 
@@ -82,33 +87,37 @@ void poly_set_wavetype(int index, poly_wavetype wavetype)
 
 void poly_set_amplitude(int index, float amplitude)
 {
-	(poly_generators + index)->amplitude = amplitude;
+	if(!(amplitude < 0.0 || amplitude > 1.0))
+	{
+		(poly_generators + index)->amplitude = amplitude;
+	}
 	return;
 }
 
 void poly_set_L_amp(int index, float L_amp)
 {
-	(poly_generators + index)->matrix[0] = L_amp;
+	if(!(L_amp < 0.0 || L_amp > 1.0))
+	{
+		(poly_generators + index)->matrix[0] = L_amp;
+	}
 	return;
 }
 
 void poly_set_R_amp(int index, float R_amp)
 {
-	(poly_generators + index)->matrix[1] = R_amp;
+	if(!(R_amp < 0.0 || R_amp > 1.0))
+	{
+		(poly_generators + index)->matrix[1] = R_amp;
+	}
 	return;
 }
 
 void poly_set_freq(int index, float freq)
 {
-	float phase_1 = (poly_generators + index)->phase;
-	float real_time = (float)poly_time/(poly_format->rate);
-	float period_1 = 1.0/((poly_generators + index)->freq);
-	float period_2 = 1.0/freq;
-	float cycle_point_1 = fmodf(real_time + (phase_1 /(2.0 *M_PI))*period_1, period_1);
-	float cycle_frac = cycle_point_1/period_1;
-	float cycle_point_2 = cycle_frac*period_2;
-	float axis_delta = real_time - cycle_point_2;
-	(poly_generators + index)->phase = -2.0 * M_PI * (axis_delta/period_2);
+	if(freq > 0.0)
+	{
+		(poly_generators + index)->phase = -((((float)poly_time/(poly_format->rate)) - ((fmodf(((float)poly_time/(poly_format->rate)) + ((poly_generators + index)->phase)*(1.0/((poly_generators + index)->freq)), (1.0/((poly_generators + index)->freq)))/(1.0/((poly_generators + index)->freq)))*(1.0/freq)))/(1.0/freq));
+	}
 	(poly_generators + index)->freq = freq;
 	return;
 }
@@ -116,6 +125,15 @@ void poly_set_freq(int index, float freq)
 void poly_set_phase(int index, float phase)
 {
 	(poly_generators + index)->phase = phase;
+	return;
+}
+
+void poly_set_duty_cycle(int index, float duty_cycle)
+{
+	if(!(duty_cycle < 0.0 || duty_cycle > 1.0))
+	{
+		(poly_generators + index)->duty_cycle = duty_cycle;
+	}
 	return;
 }
 
@@ -165,7 +183,7 @@ void *poly_gen_kernel(void *ptr)
 			for(register int i = 0; i < poly_max_generators; i++)
 			{
 				gen = poly_generators + i;
-				if(gen->init == 1)
+				if(gen->init == 1 && gen->init == 0)
 				{
 					switch(gen->wavetype)
 					{
