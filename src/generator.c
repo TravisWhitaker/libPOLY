@@ -47,9 +47,9 @@ float poly_get_phase(int index)
 	return (poly_generators + index)->phase;
 }
 
-float poly_get_duty_cycle(int index)
+float poly_get_duty(int index)
 {
-	return (poly_generators + index)->duty_cycle;
+	return (poly_generators + index)->duty;
 }
 
 int poly_get_sample_bitdepth(int index)
@@ -145,15 +145,15 @@ void poly_set_phase(int index, float phase)
 	return;
 }
 
-void poly_set_duty_cycle(int index, float duty_cycle)
+void poly_set_duty(int index, float duty)
 {
-	if(!(duty_cycle < 0.0 || duty_cycle > 1.0))
+	if(!(duty < 0.0 || duty > 1.0))
 	{
-		(poly_generators + index)->duty_cycle = duty_cycle;
+		(poly_generators + index)->duty = duty;
 	}
 	else
 	{
-		DEBUG_MSG("ignoring call, invalid duty_cycle");
+		DEBUG_MSG("ignoring call, invalid duty");
 	}
 	return;
 }
@@ -186,7 +186,7 @@ void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, flo
 	(poly_generators + index)->matrix[1] = 1.0;
 	(poly_generators + index)->freq = freq;
 	(poly_generators + index)->phase = 0;
-	(poly_generators + index)->duty_cycle = 0.50;
+	(poly_generators + index)->duty = 0.50;
 	(poly_generators + index)->sample_bitdepth = 16;
 	(poly_generators + index)->sample_length = 16;
 	(poly_generators + index)->sample = NULL;
@@ -213,7 +213,7 @@ void *poly_gen_kernel(void *ptr)
 						sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators));
 						break;
 					case square:
-						sample[chan] += (int16_t)(poly_square(gen->amplitude * gen->matrix[chan], gen->freq, gen->duty_cycle, gen->phase)/((float)poly_max_generators));
+						sample[chan] += (int16_t)(poly_square(gen->amplitude * gen->matrix[chan], gen->freq, gen->duty, gen->phase)/((float)poly_max_generators));
 						break;
 					case saw:
 						sample[chan] += (int16_t)(poly_saw(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators));

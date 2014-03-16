@@ -22,7 +22,7 @@ typedef struct
 	float matrix[2];
 	float freq;
 	float phase;
-	float duty_cycle;
+	float duty;
 	int sample_bitdepth;
 	int sample_length;
 	char *sample;
