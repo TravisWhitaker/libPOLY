@@ -43,6 +43,6 @@ void poly_set_sample_bitdepth(int index, int sample_bitdepth);
 void poly_set_sample_length(int index, int sample_length);
 void poly_set_sample(int index, char *sample);
 
-void poly_init_sine_generator(int index, float amplitute, float L_amp, float R_amp, float freq, float phase);
+void poly_init_generator(int index, poly_wavetype wavetype, float amplitute, float freq);
 
 #endif

@@ -176,26 +176,14 @@ void poly_set_sample(int index, char *sample)
 	return;
 }
 
-void poly_init_sine_generator(int index, float amplitude, float L_amp, float R_amp, float freq, float phase)
-{
-	(poly_generators + index)->init = 1;
-	(poly_generators + index)->wavetype = sine;
-	(poly_generators + index)->amplitude = amplitude;
-	(poly_generators + index)->matrix[0] = L_amp;
-	(poly_generators + index)->matrix[1] = R_amp;
-	(poly_generators + index)->freq = freq;
-	(poly_generators + index)->phase = phase;
-	return;
-}
-
 void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, float freq)
 {
 	(poly_generators + index)->init = 1;
 	(poly_generators + index)->mute = 0;
 	(poly_generators + index)->poly_wavetype = wavetype;
 	(poly_generators + index)->amplitude = amplitude;
-	(poly_generators + index)->matrix[0] = amplitude;
-	(poly_generators + index)->matrix[1] = amplitude;
+	(poly_generators + index)->matrix[0] = 1.0;
+	(poly_generators + index)->matrix[1] = 1.0;
 	(poly_generators + index)->freq = freq;
 	(poly_generators + index)->phase = 0;
 	(poly_generators + index)->duty_cycle = 0.50;
