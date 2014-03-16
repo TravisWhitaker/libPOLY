@@ -209,13 +209,7 @@ void *poly_gen_kernel(void *ptr)
 					switch(gen->wavetype)
 					{
 					case sine:
-						float amp = gen->amplitude; // Master amplitude
-						float mat = gen->matrix[chan]; // L/R weight
-						float frq = gen->freq;
-						float phs = gen->phase;
-						float div = (float) poly_max_generators;
-						//sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float) poly_max_generators));
-						sample[chan] += (int16_t)(poly_sine(amp*mat,frq,phs)/div);
+						sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float) poly_max_generators));
 						break;
 					default:
 						break;
