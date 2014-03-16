@@ -180,7 +180,7 @@ void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, flo
 {
 	(poly_generators + index)->init = 1;
 	(poly_generators + index)->mute = 0;
-	(poly_generators + index)->poly_wavetype = wavetype;
+	(poly_generators + index)->wavetype = wavetype;
 	(poly_generators + index)->amplitude = amplitude;
 	(poly_generators + index)->matrix[0] = 1.0;
 	(poly_generators + index)->matrix[1] = 1.0;
