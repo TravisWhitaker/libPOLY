@@ -49,7 +49,7 @@ float poly_get_phase(int index)
 
 float poly_get_duty_cycle(int index)
 {
-	return (poly_generators + index->duty_cycle;
+	return (poly_generators + index)->duty_cycle;
 }
 
 int poly_get_sample_bitdepth(int index)
@@ -75,7 +75,8 @@ void poly_mute(int index)
 
 void poly_unmute(int index)
 {
-	(poly_generators + index)->init = 0;
+//	(poly_generators + index)->init = 0;
+	(poly_generators + index)->mute = 0;
 	return;
 }
 
@@ -183,12 +184,19 @@ void *poly_gen_kernel(void *ptr)
 			for(register int i = 0; i < poly_max_generators; i++)
 			{
 				gen = poly_generators + i;
-				if(gen->init == 1 && gen->init == 0)
+				//if(gen->init == 1 && gen->init == 0)
+				if(gen->init == 1 && gen->mute == 0)
 				{
 					switch(gen->wavetype)
 					{
 					case sine:
-						sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float) poly_max_generators));
+						float amp = gen->amplitude; // Master amplitude
+						float mat = gen->matrix[chan]; // L/R weight
+						float frq = gen->freq;
+						float phs = gen->phase;
+						float div = (float) poly_max_generators;
+						//sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float) poly_max_generators));
+						sample[chan] += (int16_t)(poly_sine(amp*mat,frq,phs)/div);
 						break;
 					default:
 						break;
