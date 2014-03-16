@@ -49,7 +49,7 @@ float poly_get_phase(int index)
 
 float poly_get_duty_cycle(int index)
 {
-	return (poly_generators + index->duty_cycle;
+	return (poly_generators + index)->duty_cycle;
 }
 
 int poly_get_sample_bitdepth(int index)
@@ -91,6 +91,10 @@ void poly_set_amplitude(int index, float amplitude)
 	{
 		(poly_generators + index)->amplitude = amplitude;
 	}
+	else
+	{
+		DEBUG_MSG("ignoring call, invalid amplitude");
+	}
 	return;
 }
 
@@ -99,6 +103,10 @@ void poly_set_L_amp(int index, float L_amp)
 	if(!(L_amp < 0.0 || L_amp > 1.0))
 	{
 		(poly_generators + index)->matrix[0] = L_amp;
+	}
+	else
+	{
+		DEBUG_MSG("ignoring call, invalid L_amp");
 	}
 	return;
 }
@@ -109,6 +117,10 @@ void poly_set_R_amp(int index, float R_amp)
 	{
 		(poly_generators + index)->matrix[1] = R_amp;
 	}
+	else
+	{
+		DEBUG_MSG("ignoring call, invalid R_amp");
+	}
 	return;
 }
 
@@ -117,6 +129,10 @@ void poly_set_freq(int index, float freq)
 	if(freq > 0.0)
 	{
 		(poly_generators + index)->phase = -((((float)poly_time/(poly_format->rate)) - ((fmodf(((float)poly_time/(poly_format->rate)) + ((poly_generators + index)->phase)*(1.0/((poly_generators + index)->freq)), (1.0/((poly_generators + index)->freq)))/(1.0/((poly_generators + index)->freq)))*(1.0/freq)))/(1.0/freq));
+	}
+	else
+	{
+		DEBUG_MSG("ignoring call, invalid freq");
 	}
 	(poly_generators + index)->freq = freq;
 	return;
@@ -133,6 +149,10 @@ void poly_set_duty_cycle(int index, float duty_cycle)
 	if(!(duty_cycle < 0.0 || duty_cycle > 1.0))
 	{
 		(poly_generators + index)->duty_cycle = duty_cycle;
+	}
+	else
+	{
+		DEBUG_MSG("ignoring call, invalid duty_cycle");
 	}
 	return;
 }
@@ -183,7 +203,7 @@ void *poly_gen_kernel(void *ptr)
 			for(register int i = 0; i < poly_max_generators; i++)
 			{
 				gen = poly_generators + i;
-				if(gen->init == 1 && gen->init == 0)
+				if(gen->init == 1 && gen->mute == 0)
 				{
 					switch(gen->wavetype)
 					{
