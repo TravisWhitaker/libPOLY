@@ -210,14 +210,16 @@ void *poly_gen_kernel(void *ptr)
 					switch(gen->wavetype)
 					{
 					case sine:
-						sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float) poly_max_generators));
+						sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators));
 						break;
 					case square:
-						sample[chan] += (int16_t)(poly_square(gen->amplitude * gen->matrix[chan], gen->freq, gen->duty_cycle, gen->phase)/((float) poly_max_generators));
+						sample[chan] += (int16_t)(poly_square(gen->amplitude * gen->matrix[chan], gen->freq, gen->duty_cycle, gen->phase)/((float)poly_max_generators));
+						break;
+					case saw:
+						sample[chan] += (int16_t)(poly_saw(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators));
 						break;
 					default:
 						DEBUG_MSG("waveform not yet implemented");
-						sample[chan] = 0;
 						break;
 					}
 				}

@@ -7,8 +7,8 @@ typedef enum
 {
 	sine,
 	square,
-	triangle,
 	saw,
+	triangle,
 	sample,
 	loopsample,
 } poly_wavetype;
