@@ -31,6 +31,6 @@ void poly_set_sample_length(int index, int sample_length);
 void poly_set_sample(int index, char *sample);
 
 // Set all of a generator's state at once:
-void poly_set_generator(int index, poly_wavetype wavetype, float amplitute, float L_amp, float R_amp, float freq, float phase, int sample_bitdepth, int sample_length, char *sample);
+void poly_init_sine_generator(int index, float amplitute, float L_amp, float R_amp, float freq, float phase);
 
 #endif

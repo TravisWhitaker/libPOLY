@@ -176,19 +176,15 @@ void poly_set_sample(int index, char *sample)
 	return;
 }
 
-// Set all of a generator's state at once
-void poly_set_generator(int index, poly_wavetype wavetype, float amplitude, float L_amp, float R_amp, float freq, float phase, int sample_bitdepth, int sample_length, char *sample)
+void poly_init_sine_generator(int index, float amplitude, float L_amp, float R_amp, float freq, float phase)
 {
 	(poly_generators + index)->init = 1;
-	(poly_generators + index)->wavetype = wavetype;
+	(poly_generators + index)->wavetype = sine;
 	(poly_generators + index)->amplitude = amplitude;
 	(poly_generators + index)->matrix[0] = L_amp;
 	(poly_generators + index)->matrix[1] = R_amp;
 	(poly_generators + index)->freq = freq;
 	(poly_generators + index)->phase = phase;
-	(poly_generators + index)->sample_bitdepth = sample_bitdepth;
-	(poly_generators + index)->sample_length = sample_length;
-	(poly_generators + index)->sample = sample;
 	return;
 }
 
@@ -212,6 +208,8 @@ void *poly_gen_kernel(void *ptr)
 						sample[chan] += (int16_t)(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float) poly_max_generators));
 						break;
 					default:
+						DEBUG_MSG("waveform not yet implemented");
+						sample[chan] = 0;
 						break;
 					}
 				}
