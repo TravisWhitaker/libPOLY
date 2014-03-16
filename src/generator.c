@@ -100,6 +100,15 @@ void poly_set_R_amp(int index, float R_amp)
 
 void poly_set_freq(int index, float freq)
 {
+	float phase_1 = (poly_generators + index)->phase;
+	float real_time = (float)poly_time/(poly_format->rate);
+	float period_1 = 1.0/((poly_generators + index)->freq);
+	float period_2 = 1.0/freq;
+	float cycle_point_1 = fmodf(real_time + (phase_1 /(2.0 *M_PI))*period_1, period_1);
+	float cycle_frac = cycle_point_1/period_1;
+	float cycle_point_2 = cycle_frac*period_2;
+	float axis_delta = real_time - cycle_point_2;
+	(poly_generators + index)->phase = -2.0 * M_PI * (axis_delta/period_2);
 	(poly_generators + index)->freq = freq;
 	return;
 }
