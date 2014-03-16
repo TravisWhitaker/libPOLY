@@ -22,6 +22,6 @@ float poly_square(float amplitude, float freq, float duty_cycle, float phase)
 	}
 	else
 	{
-		return amplitude * POLY_MAX_AMP;
+		return -amplitude * POLY_MAX_AMP;
 	}
 }
