@@ -41,7 +41,7 @@ waveform.o: src/waveform.c
 debug: libpolydebug.a
 
 libpolydebug.a: client.o.debug generator.o.debug waveform.o.debug
-	$(AR) $(ARFLAGS) client.o.debug generator.o.debug waveform.o.debug
+	$(AR) $(ARFLAGS) libpolydebug.a client.o.debug generator.o.debug waveform.o.debug
 
 client.o.debug: src/client.c
 	$(CC) -c $(DEBUG_CFLAGS) $(INCLUDE) $(FPIC) src/client.c -o client.o.debug
