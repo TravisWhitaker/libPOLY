@@ -218,6 +218,9 @@ void *poly_gen_kernel(void *ptr)
 					case saw:
 						sample[chan] += (int16_t)(poly_saw(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators));
 						break;
+					case triangle:
+						sample[chan] += (int16_t)(poly_triangle(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators));
+						break;
 					default:
 						DEBUG_MSG("waveform not yet implemented");
 						break;

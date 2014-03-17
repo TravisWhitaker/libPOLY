@@ -9,5 +9,6 @@
 float poly_sine(float amplitude, float freq, float phase);
 float poly_square(float amplitude, float freq, float duty, float phase);
 float poly_saw(float amplitude, float freq, float phase);
+float poly_triangle(float amplitude, float freq, float phase);
 
 #endif
