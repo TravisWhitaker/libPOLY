@@ -52,4 +52,6 @@ void poly_set_sample(int index, char *sample);
 // Initialize a generator with usable defaults:
 void poly_init_generator(int index, poly_wavetype wavetype, float amplitute, float freq);
 
+float poly_clip(float x, float max);
+
 #endif
