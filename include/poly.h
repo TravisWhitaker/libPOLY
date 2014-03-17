@@ -34,7 +34,7 @@ int poly_get_sample_bitdepth(int index);
 int poly_get_sample_length(int index);
 char *poly_get_sample(int index);
 
-// Functions to set genertor state:
+// Functions to set generator state:
 void poly_mute(int index);
 void poly_unmute(int index);
 void poly_set_wavetype(int index, poly_wavetype wavetype);
