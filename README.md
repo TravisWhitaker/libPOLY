@@ -3,35 +3,39 @@ libPOLY
 
 A Musical Instrument for Computers
 
-LibPOLY is a wave generation library made for easy creation of different wave forms. LibPOLY allows the user to create math based sound in their C/C++ programs, fun and serious uses included.
+libPOLY is a sound synthesis library for the C programming language designed for real-time music generation and output. libPOLY attempts to balance mathematical correctness with latency minimization, leading to ultra-low distortion levels and support for hundreds of simultaneous generators (channels).
 
 ###Features
-Easy wave generation including support for multiple waveforms:
-  - Sine
-  - Square
-  - Saw
-  - Triangle
+Real-time analytical synthesis of the the following waveforms:
+  - Sine Wave
+  - Square Wave
+  - Sawtooth Wave
+  - Triangle Wave
+  - Noise (coming soon)
+  - Arbitrary Sampling (coming soon)
 
-Simple invokation:
+Simple API:
 ```C
 poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename);
 poly_init_generator(int index, poly_wavetype wavetype, float amplitute, float freq);
-```
-
-Change your waveforms on the fly with simply setters:
-```C
-void poly_set_wavetype(int index, poly_wavetype wavetype);
-void poly_set_amplitude(int index, float amplitude);
-void poly_set_L_amp(int index, float L_amp);
-void poly_set_R_amp(int index, float R_amp);
-void poly_set_freq(int index, float freq);
-void poly_set_phase(int index, float phase);
-```
-
-Simple shutdown:
-```C
+poly_start();
+// Rocking-out hard core...
 poly_stop();
 poly_shutdown();
 ```
 
-Usage information is currently in creation while the rest of LibPOLY is being written.
+Modify synthesis parameters in real-time:
+```C
+void poly_set_wavetype(int index, poly_wavetype wavetype);
+void poly_set_amplitude(int index, float amplitude);
+void poly_set_freq(int index, float freq);
+void poly_set_phase(int index, float phase);
+```
+
+libPOLY is under active develpment and the API changes frequently.
+
+###Requirements:
+  - high-speed `lm` implementation for your platform
+  - `libao`
+  - `pthreads`
+  - ALSA if on Linux, ALSA emulation (e.g. via PulseAudio) will not suffice
