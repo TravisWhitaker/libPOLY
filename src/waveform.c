@@ -48,12 +48,26 @@ float poly_triangle(float amplitude, float freq, float phase)
 
 float poly_clip(float x, float max)
 {
-	if(fmodf(x, max) == x)
+	if(x > 0.0)
 	{
-		return x;
+		if(fmodf(x, max) == x)
+		{
+			return x;
+		}
+		else
+		{
+			return max;
+		}
 	}
 	else
 	{
-		return max;
+		if(fmodf(-x, max) == -x)
+		{
+			return x;
+		}
+		else
+		{
+			return -max;
+		}
 	}
 }
