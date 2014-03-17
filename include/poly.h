@@ -36,6 +36,7 @@ void poly_set_wavetype(int index, poly_wavetype wavetype);
 void poly_set_amplitude(int index, float amplitude);
 void poly_set_L_amp(int index, float L_amp);
 void poly_set_R_amp(int index, float R_amp);
+void poly_bump_freq(int index, float freq);
 void poly_set_freq(int index, float freq);
 void poly_set_phase(int index, float phase);
 void poly_set_duty(int index, float duty);
