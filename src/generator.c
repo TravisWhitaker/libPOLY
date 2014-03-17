@@ -11,7 +11,7 @@
 #include <poly/generator.h>
 #include <poly/debug.h>
 
-// Function to get generator state:
+// Functions to get generator state:
 char poly_get_init(int index)
 {
 	return (poly_generators + index)->init;
@@ -75,7 +75,6 @@ void poly_mute(int index)
 
 void poly_unmute(int index)
 {
-//	(poly_generators + index)->init = 0;
 	(poly_generators + index)->mute = 0;
 	return;
 }
@@ -125,6 +124,8 @@ void poly_set_R_amp(int index, float R_amp)
 	return;
 }
 
+// Change a generator's frequency without any phase correction.
+// This may cause distortion.
 void poly_bump_freq(int index, float freq)
 {
 	if(freq > 0.0)
@@ -138,6 +139,9 @@ void poly_bump_freq(int index, float freq)
 	return;
 }
 
+// Change a generator's frequency, ensuring signal continuity
+// by computing a phase offset. It is safe to call this function
+// as often as possible.
 void poly_set_freq(int index, float freq)
 {
 	if(freq > 0.0)
@@ -189,6 +193,7 @@ void poly_set_sample(int index, char *sample)
 	return;
 }
 
+// Initialize a generator with sensible defaults.
 void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, float freq)
 {
 	(poly_generators + index)->init = 1;

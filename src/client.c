@@ -23,7 +23,7 @@ int poly_max_generators;
 poly_gen *poly_generators;
 uint64_t poly_time;
 
-// Initialize the libPOLY global state. Return 0 on success.
+// Initialize the libPOLY global state. Return 0 on success, 1 on error.
 int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename)
 {
 	// Make sure arguments are valid:
@@ -164,9 +164,13 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 	return 0;
 }
 
+// De-initialize the libPOLY environment.
 void poly_shutdown()
 {
-	poly_stop();
+	if(poly_playback == 1)
+	{
+		poly_stop();
+	}
 	if(poly_card != NULL)
 	{
 		ao_close(poly_card);
@@ -189,6 +193,7 @@ void poly_shutdown()
 	return;
 }
 
+// Start real-time playback.
 int poly_start()
 {
 	if(poly_playback == 1)
@@ -222,6 +227,7 @@ int poly_start()
 	return 0;
 }
 
+// Stop real-time playback.
 void poly_stop()
 {
 	if(poly_playback == 0)
