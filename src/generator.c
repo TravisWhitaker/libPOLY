@@ -87,14 +87,7 @@ void poly_set_wavetype(int index, poly_wavetype wavetype)
 
 void poly_set_amplitude(int index, float amplitude)
 {
-	if(!(amplitude < 0.0 || amplitude > 1.0))
-	{
-		(poly_generators + index)->amplitude = amplitude;
-	}
-	else
-	{
-		DEBUG_MSG("ignoring call, invalid amplitude");
-	}
+	(poly_generators + index)->amplitude = amplitude;
 	return;
 }
 
