@@ -26,10 +26,10 @@ poly_shutdown();
 
 Modify synthesis parameters in real-time:
 ```C
-void poly_set_wavetype(int index, poly_wavetype wavetype);
-void poly_set_amplitude(int index, float amplitude);
-void poly_set_freq(int index, float freq);
-void poly_set_phase(int index, float phase);
+poly_set_wavetype(int index, poly_wavetype wavetype);
+poly_set_amplitude(int index, float amplitude);
+poly_set_freq(int index, float freq);
+poly_set_phase(int index, float phase);
 ```
 
 libPOLY is under active develpment and the API changes frequently.
