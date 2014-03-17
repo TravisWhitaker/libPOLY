@@ -45,3 +45,15 @@ float poly_triangle(float amplitude, float freq, float phase)
 	// (signal amplitude) * (peak amplitude) * (2 * abs(sawtooth(t, phase)) - 1)
 	return amplitude * POLY_MAX_AMP * (2 * fabsf(2 * (freq * (((float)poly_time)/(poly_format->rate) + phase*(1.0/freq)) - floorf(0.5 + (((float)poly_time)/(poly_format->rate) + phase*(1.0/freq)) * freq))) - 1);
 }
+
+float poly_clip(float x, float max)
+{
+	if(fmodf(x, max) == 0)
+	{
+		return x;
+	}
+	else
+	{
+		return max;
+	}
+}
