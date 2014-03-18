@@ -11,6 +11,7 @@ typedef enum
 	triangle,
 	sample,
 	loopsample,
+	noise
 } poly_wavetype;
 
 // Functions to manage global libPOLY state:

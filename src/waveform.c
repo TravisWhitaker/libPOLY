@@ -9,6 +9,8 @@
 #include <poly/waveform.h>
 #include <poly/debug.h>
 
+
+
 float poly_sine(float amplitude, float freq, float phase)
 {
 	// (signal amplitude) * (peak amplitude) * sin(2 * pi * (t + phase))
@@ -59,7 +61,7 @@ float poly_clip(float x, float max)
 			return max;
 		}
 	}
-	else
+	
 	{
 		if(fmodf(-x, max) == -x)
 		{
@@ -70,4 +72,11 @@ float poly_clip(float x, float max)
 			return -max;
 		}
 	}
+}
+
+float poly_noise(float amplitude, float freq, float duty, float phase)
+{
+	float arg1 = (float)(rand_r(&poly_seed));
+	float arg2 = 1 * duty;
+	return poly_square(amplitude, (1.0/(freq/2)) + fmod(arg1,arg2), 0.5, phase);
 }

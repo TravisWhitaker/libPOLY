@@ -22,7 +22,8 @@ char poly_playback;
 int poly_max_generators;
 poly_gen *poly_generators;
 uint64_t poly_time;
-
+unsigned int poly_seed;
+float poly_rand_freq;
 // Initialize the libPOLY global state. Return 0 on success, 1 on error.
 int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename)
 {
@@ -159,8 +160,20 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 		}
 	}
 
-	poly_generators = calloc(poly_max_generators, sizeof(*poly_generators));
+	// Set up rand_r
+	poly_seed = time(NULL);
 
+	poly_generators = calloc(poly_max_generators, sizeof(*poly_generators));
+	poly_rand_freq = 0.0;
+	poly_rand_cnt = 0;
+	// Check if all is okay
+	if (poly_generators == NULL)
+	{
+		DEBUG_MSG("failed to create generators");
+		free(poly_format);
+		poly_format = NULL;
+		return 1;
+	}
 	return 0;
 }
 

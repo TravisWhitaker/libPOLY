@@ -10,7 +10,8 @@ typedef enum
 	saw,
 	triangle,
 	sample,
-	loopsample
+	loopsample,
+	noise
 } poly_wavetype;
 
 typedef struct
@@ -43,4 +44,8 @@ extern int poly_max_generators;
 extern poly_gen *poly_generators;
 extern uint64_t poly_time;
 
+// used for rand_r
+extern unsigned int poly_seed;
+extern float poly_rand_freq; // Kept separate as it updates slowly
+extern int poly_rand_cnt;
 #endif
