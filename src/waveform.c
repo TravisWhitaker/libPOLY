@@ -74,9 +74,11 @@ float poly_clip(float x, float max)
 	}
 }
 
+#define POLY_NOISE_DUTY_INFLUENCE 8.0
+
 float poly_noise(float amplitude, float freq, float duty, float phase)
 {
-	float arg1 = (float)(rand_r(&poly_seed));
-	float arg2 = 1 * duty;
-	return poly_square(amplitude, (1.0/(freq/2)) + fmod(arg1,arg2), 0.5, phase);
+	float arg1 = (float)poly_rand_freq;
+	float arg2 = POLY_NOISE_DUTY_INFLUENCE * duty;
+	return poly_square(amplitude, freq + fmod(arg1,arg2), 0.5, phase);
 }

@@ -23,7 +23,8 @@ int poly_max_generators;
 poly_gen *poly_generators;
 uint64_t poly_time;
 unsigned int poly_seed;
-float poly_rand_freq;
+unsigned int poly_rand_freq;
+int poly_rand_cnt;
 // Initialize the libPOLY global state. Return 0 on success, 1 on error.
 int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename)
 {
@@ -162,6 +163,17 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 
 	// Set up rand_r
 	poly_seed = time(NULL);
+
+	// Run the randomizer a few (hundred) times to have it do its job better
+	for (int i = 0; i < 400000; i++)
+	{
+		poly_rand_freq = rand_r(&poly_seed);
+		poly_rand_freq = rand_r(&poly_seed);
+		poly_rand_freq = rand_r(&poly_seed);
+		poly_rand_freq = rand_r(&poly_seed);
+		poly_rand_freq = rand_r(&poly_seed);
+		poly_rand_freq = rand_r(&poly_seed);
+	}
 
 	poly_generators = calloc(poly_max_generators, sizeof(*poly_generators));
 	poly_rand_freq = 0.0;
