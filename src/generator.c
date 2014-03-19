@@ -204,7 +204,6 @@ void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, flo
 	return;
 }
 
-#define POLY_RAND_SPEED 128
 void *poly_gen_kernel(void *ptr)
 {
 	((void)ptr);
@@ -213,7 +212,7 @@ void *poly_gen_kernel(void *ptr)
 	while(poly_playback == 1)
 	{
 		poly_rand_cnt++;
-		if (poly_rand_cnt == POLY_RAND_SPEED)
+		if (poly_rand_cnt == POLY_RAND_FREQ_SPEED)
 		{
 			poly_rand_cnt = 0;
 			poly_rand_freq = rand_r(&poly_seed);

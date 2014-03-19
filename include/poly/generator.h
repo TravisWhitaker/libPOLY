@@ -3,6 +3,8 @@
 #ifndef POLY_GENERATOR_H
 #define POLY_GENERATOR_H
 
+#define POLY_RAND_FREQ_SPEED 64
+
 // Functions to get generator state:
 char poly_get_init(int index);
 poly_wavetype poly_get_wavetype(int index);
