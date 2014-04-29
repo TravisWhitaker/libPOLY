@@ -25,6 +25,10 @@ endif
 .PHONY: all
 all: libpoly.a
 
+.PHONY: shared
+shared: client.o generator.o waveform.o
+	$(CC) -shared -o libpoly.so client.o generator.o waveform.o
+
 libpoly.a: client.o generator.o waveform.o
 	$(AR) $(ARFLAGS) libpoly.a client.o generator.o waveform.o
 
