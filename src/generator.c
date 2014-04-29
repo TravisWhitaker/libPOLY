@@ -220,17 +220,17 @@ void *poly_gen_kernel(void *ptr)
 				{
 					switch(gen->wavetype)
 					{
-					case sine:
-						sample[chan] += (int16_t)(poly_clip(poly_sine(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
+					case poly_sine:
+						sample[chan] += (int16_t)(poly_clip(poly_sine_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
 						break;
-					case square:
-						sample[chan] += (int16_t)(poly_clip(poly_square(gen->amplitude * gen->matrix[chan], gen->freq, gen->duty, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
+					case poly_square:
+						sample[chan] += (int16_t)(poly_clip(poly_square_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->duty, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
 						break;
-					case saw:
-						sample[chan] += (int16_t)(poly_clip(poly_saw(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
+					case poly_saw:
+						sample[chan] += (int16_t)(poly_clip(poly_saw_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
 						break;
-					case triangle:
-						sample[chan] += (int16_t)(poly_clip(poly_triangle(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
+					case poly_triangle:
+						sample[chan] += (int16_t)(poly_clip(poly_triangle_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
 						break;
 					default:
 						DEBUG_MSG("waveform not yet implemented");

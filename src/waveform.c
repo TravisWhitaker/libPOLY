@@ -9,13 +9,13 @@
 #include <poly/waveform.h>
 #include <poly/debug.h>
 
-float poly_sine(float amplitude, float freq, float phase)
+float poly_sine_func(float amplitude, float freq, float phase)
 {
 	// (signal amplitude) * (peak amplitude) * sin(2 * pi * (t + phase))
 	return amplitude * POLY_MAX_AMP * sin(2.0 * M_PI * (freq * ((float) poly_time/(poly_format->rate)) + phase));
 }
 
-float poly_square(float amplitude, float freq, float duty, float phase)
+float poly_square_func(float amplitude, float freq, float duty, float phase)
 {
 	// Piece-wise square wave implementation:
 	// if (adj_t) / (period) < (fractional duty cycle), return (signal amplitude) * (peak amplitude)
@@ -32,14 +32,14 @@ float poly_square(float amplitude, float freq, float duty, float phase)
 	}
 }
 
-float poly_saw(float amplitude, float freq, float phase)
+float poly_saw_func(float amplitude, float freq, float phase)
 {
 	// (signal amplitude) * (peak amplitude) * 2 * ((time + phase)/period - floor(1/2 + (time + phase)/period))
 	// where period = 1/freq
 	return amplitude * POLY_MAX_AMP * 2 * (freq * (((float)poly_time)/(poly_format->rate) + phase*(1.0/freq)) - floorf(0.5 + (((float)poly_time)/(poly_format->rate) + phase*(1.0/freq)) * freq));
 }
 
-float poly_triangle(float amplitude, float freq, float phase)
+float poly_triangle_func(float amplitude, float freq, float phase)
 {
 	// Triangle wave implemented as absolute value of sawtooth wave:
 	// (signal amplitude) * (peak amplitude) * (2 * abs(sawtooth(t, phase)) - 1)
