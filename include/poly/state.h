@@ -5,27 +5,27 @@
 
 typedef enum
 {
-	poly_sine,
-	poly_square,
-	poly_saw,
-	poly_triangle,
-	poly_sample,
-	poly_loopsample
+    poly_sine,
+    poly_square,
+    poly_saw,
+    poly_triangle,
+    poly_sample,
+    poly_loopsample
 } poly_wavetype;
 
 typedef struct
 {
-	unsigned char init;
-	unsigned char mute;
-	poly_wavetype wavetype;
-	float amplitude;
-	float matrix[2];
-	float freq;
-	float phase;
-	float duty;
-	int sample_bitdepth;
-	int sample_length;
-	char *sample;
+    unsigned char init;
+    unsigned char mute;
+    poly_wavetype wavetype;
+    float amplitude;
+    float matrix[2];
+    float freq;
+    float phase;
+    float duty;
+    int sample_bitdepth;
+    int sample_length;
+    char *sample;
 } poly_gen;
 
 // Generator thread main loop:
