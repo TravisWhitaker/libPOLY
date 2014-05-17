@@ -139,7 +139,10 @@ void poly_set_freq(int index, float freq)
 {
 	if(freq > 0.0)
 	{
-		(poly_generators + index)->phase = -((((float)poly_time/(poly_format->rate)) - ((fmodf(((float)poly_time/(poly_format->rate)) + ((poly_generators + index)->phase)*(1.0/((poly_generators + index)->freq)), (1.0/((poly_generators + index)->freq)))/(1.0/((poly_generators + index)->freq)))*(1.0/freq)))/(1.0/freq));
+		(poly_generators + index)->phase = -((((float)poly_time/(poly_format->rate)) -
+		((fmodf(((float)poly_time/(poly_format->rate)) + ((poly_generators + index)->phase)
+		*(1.0/((poly_generators + index)->freq)), (1.0/((poly_generators + index)->freq)))/
+		(1.0/((poly_generators + index)->freq)))*(1.0/freq)))/(1.0/freq));
 		(poly_generators + index)->freq = freq;
 	}
 	else
