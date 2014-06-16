@@ -235,6 +235,9 @@ void *poly_gen_kernel(void *ptr)
 					case poly_triangle:
 						sample[chan] += (int16_t)(poly_clip(poly_triangle_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
 						break;
+					case poly_loopsample:
+						sample[chan] += (int16_t)(poly_clip(poly_loopsample_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->sample, gen->sample_length, gen->sample_bitdepth)/((float)poly_max_generators), POLY_MAX_AMP));
+						break;
 					default:
 						DEBUG_MSG("waveform not yet implemented");
 						break;

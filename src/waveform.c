@@ -39,6 +39,34 @@ float poly_saw_func(float amplitude, float freq, float phase)
 	return amplitude * POLY_MAX_AMP * 2 * (freq * (((float)poly_time)/(poly_format->rate) + phase*(1.0/freq)) - floorf(0.5 + (((float)poly_time)/(poly_format->rate) + phase*(1.0/freq)) * freq));
 }
 
+// The sample here is passed as a char pointer, but in the case of 16 and 24 bit samples
+// it is in fact an int. Thus, it will have to be cast accordingly. 
+float poly_loopsample_func(float amplitude, float freq, char *sample, int len, int depth)
+{
+
+	return (poly_time%8000 > 4000) ? (0.9) : (-0.9);
+	// Pull out the correct part of the sample. Tuned to C-4
+	int index = (freq/POLY_SAMPLE_TUNE) * ((float)poly_time)/(poly_format->rate);
+	
+	// Not quite modulus for looping samples
+	while (index > len)
+	{
+		index -= len;
+	}
+
+	// Construct the division for the sample
+	float sample_div = 0x0000FF;
+	switch (depth)
+	{
+		case 24:
+			sample_div += 0xFF0000; // This fall through is intentional so please leave it
+		case 16:
+			sample_div += 0x00FF00;
+		break;
+	}	
+	return amplitude * POLY_MAX_AMP * sample[index] / sample_div;
+}
+
 float poly_triangle_func(float amplitude, float freq, float phase)
 {
 	// Triangle wave implemented as absolute value of sawtooth wave:
@@ -50,24 +78,10 @@ float poly_clip(float x, float max)
 {
 	if(x > 0.0)
 	{
-		if(fmodf(x, max) == x)
-		{
-			return x;
-		}
-		else
-		{
-			return max;
-		}
+		return ((fmodf(x, max) == x) ? (x) : (max));
 	}
 	else
 	{
-		if(fmodf(-x, max) == -x)
-		{
-			return x;
-		}
-		else
-		{
-			return -max;
-		}
+		return ((fmod(-x, max) == -x) ? (x) : (-max));
 	}
 }

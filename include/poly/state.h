@@ -25,6 +25,7 @@ typedef struct
 	float duty;
 	int sample_bitdepth;
 	int sample_length;
+//	int sample_playing;
 	char *sample;
 } poly_gen;
 
