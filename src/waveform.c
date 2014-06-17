@@ -43,8 +43,6 @@ float poly_saw_func(float amplitude, float freq, float phase)
 // it is in fact an int. Thus, it will have to be cast accordingly. 
 float poly_loopsample_func(float amplitude, float freq, char *sample, int len, int depth)
 {
-
-	return (poly_time%8000 > 4000) ? (0.9) : (-0.9);
 	// Pull out the correct part of the sample. Tuned to C-4
 	int index = (freq/POLY_SAMPLE_TUNE) * ((float)poly_time)/(poly_format->rate);
 	
