@@ -5,12 +5,12 @@
 
 typedef enum
 {
-	poly_sine,
-	poly_square,
-	poly_saw,
-	poly_triangle,
-	poly_sample,
-	poly_loopsample,
+    poly_sine,
+    poly_square,
+    poly_saw,
+    poly_triangle,
+    poly_sample,
+    poly_loopsample,
 } poly_wavetype;
 
 // Functions to manage global libPOLY state:
