@@ -2,3 +2,4 @@
 *.a
 *.o
 *.o.debug
+*.so
