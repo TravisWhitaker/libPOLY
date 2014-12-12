@@ -22,14 +22,7 @@ float poly_square_func(float amplitude, float freq, float duty, float phase)
 	// otherwise, return -(signal amplitude) * (peak amplitude)
 	// where adj_t = (t + phase) % period, i.e. t relative to start of period,
 	// and period = 1/freq
-	if(fmod(((float)poly_time/poly_format->rate) + phase*(1.0/freq), 1.0/freq)/(1.0/freq) < duty)
-	{
-		return amplitude * POLY_MAX_AMP;
-	}
-	else
-	{
-		return -amplitude * POLY_MAX_AMP;
-	}
+	return((fmod(((float)poly_time/poly_format->rate) + phase*(1.0/freq), 1.0/freq)/(1.0/freq) < duty))?(amplitude * POLY_MAX_AMP):(-amplitude * POLY_MAX_AMP);
 }
 
 float poly_saw_func(float amplitude, float freq, float phase)
