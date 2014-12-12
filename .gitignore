@@ -2,3 +2,5 @@
 *.a
 *.o
 *.o.debug
+examples/*.o
+examples/wavetest

@@ -9,9 +9,16 @@ typedef enum
 	poly_square,
 	poly_saw,
 	poly_triangle,
-	poly_sample,
+	poly_onesample,
 	poly_loopsample
 } poly_wavetype;
+
+typedef struct
+{
+	float *data;
+	unsigned int len;
+	unsigned int div;
+} poly_sample;
 
 typedef struct
 {
@@ -23,10 +30,9 @@ typedef struct
 	float freq;
 	float phase;
 	float duty;
-	int sample_bitdepth;
-	int sample_length;
-	char *sample;
+	poly_sample *sample;
 } poly_gen;
+
 
 // Generator thread main loop:
 extern void *poly_gen_kernel(void *ptr);

@@ -52,16 +52,7 @@ float poly_get_duty(int index)
 	return (poly_generators + index)->duty;
 }
 
-int poly_get_sample_bitdepth(int index)
-{
-	return (poly_generators + index)->sample_bitdepth;
-}
-
-int poly_get_sample_length(int index)
-{
-	return (poly_generators + index)->sample_length;
-}
-char *poly_get_sample(int index)
+poly_sample *poly_get_sample(int index)
 {
 	return (poly_generators + index)->sample;
 }
@@ -171,19 +162,7 @@ void poly_set_duty(int index, float duty)
 	return;
 }
 
-void poly_set_sample_bitdepth(int index, int sample_bitdepth)
-{
-	(poly_generators + index)->sample_bitdepth = sample_bitdepth;
-	return;
-}
-
-void poly_set_sample_length(int index, int sample_length)
-{
-	(poly_generators + index)->sample_length = sample_length;
-	return;
-}
-
-void poly_set_sample(int index, char *sample)
+void poly_set_sample(int index, poly_sample *sample)
 {
 	(poly_generators + index)->sample = sample;
 	return;
@@ -201,8 +180,6 @@ void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, flo
 	(poly_generators + index)->freq = freq;
 	(poly_generators + index)->phase = 0;
 	(poly_generators + index)->duty = 0.50;
-	(poly_generators + index)->sample_bitdepth = 16;
-	(poly_generators + index)->sample_length = 16;
 	(poly_generators + index)->sample = NULL;
 	return;
 }
@@ -216,9 +193,9 @@ void *poly_gen_kernel(void *ptr)
 	{
 		for(register int chan = 0; chan < poly_format->channels; chan++)
 		{
+			gen = poly_generators;
 			for(register int i = 0; i < poly_max_generators; i++)
 			{
-				gen = poly_generators + i;
 				if(gen->init == 1 && gen->mute == 0)
 				{
 					switch(gen->wavetype)
@@ -235,11 +212,15 @@ void *poly_gen_kernel(void *ptr)
 					case poly_triangle:
 						sample[chan] += (int16_t)(poly_clip(poly_triangle_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
 						break;
+					case poly_loopsample:
+						sample[chan] += (int16_t)(poly_clip(poly_loopsample_func(gen->sample, gen->amplitude * gen->matrix[chan], gen->freq, gen->phase) / ((float)poly_max_generators), POLY_MAX_AMP));
+						break;
 					default:
 						DEBUG_MSG("waveform not yet implemented");
 						break;
 					}
 				}
+				gen = gen + 1;
 			}
 		}
 		poly_time++;
