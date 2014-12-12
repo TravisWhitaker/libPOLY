@@ -236,7 +236,7 @@ void poly_stop()
 		return;
 	}
 	poly_playback = 0;
-	poly_time = 0;
 	pthread_join(poly_thread, NULL);
+	poly_time = 0;
 	return;
 }
