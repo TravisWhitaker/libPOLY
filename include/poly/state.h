@@ -9,6 +9,7 @@ typedef enum
 	poly_square,
 	poly_saw,
 	poly_triangle,
+	poly_noise,
 	poly_onesample,
 	poly_loopsample
 } poly_wavetype;
@@ -31,6 +32,11 @@ typedef struct
 	float phase;
 	float duty;
 	poly_sample *sample;
+	unsigned int noise_counter;
+	unsigned int noise_state;
+	unsigned int noise_size;
+	unsigned int noise_tap;
+	unsigned int noise_mult;
 } poly_gen;
 
 

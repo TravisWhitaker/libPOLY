@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 	printf("Usage: wavetest [freq=440] [div=0]\n");
 
 	// If the user is specifying a frequency, init with it.
-	if (argc == 2)
+	if (argc >= 2)
 	{
 		poly_init_generator(0,poly_loopsample,1.0,atoi(argv[1]));
 	}
