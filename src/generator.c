@@ -249,22 +249,46 @@ void *poly_gen_kernel(void *ptr)
 					switch(gen->wavetype)
 					{
 					case poly_sine:
-						val = poly_sine_func(arg_amp, gen->freq, gen->phase);
+						val = poly_sine_func(
+							arg_amp, 
+							gen->freq, 
+							gen->phase);
 						break;
 					case poly_square:
-						val = poly_square_func(arg_amp, gen->freq, gen->duty, gen->phase);
+						val = poly_square_func(
+							arg_amp, 
+							gen->freq, 
+							gen->duty, 
+							gen->phase);
 						break;
 					case poly_saw:
-						val = poly_saw_func(arg_amp, gen->freq, gen->phase);
+						val = poly_saw_func(
+							arg_amp, 
+							gen->freq, 
+							gen->phase);
 						break;
 					case poly_triangle:
-						val = poly_triangle_func(arg_amp, gen->freq, gen->phase);
+						val = poly_triangle_func(
+							arg_amp, 
+							gen->freq, 
+							gen->phase);
 						break;
 					case poly_loopsample:
-						val = poly_loopsample_func(gen->sample, arg_amp, gen->freq, gen->phase);
+						val = poly_loopsample_func(
+							gen->sample, 	
+							arg_amp, 
+							gen->freq, 
+							gen->phase);
 						break;
 					case poly_noise:
-						val = poly_noise_func(arg_amp, gen->freq * gen->noise_mult, &(gen->noise_counter), &(gen->noise_state), gen->noise_tap, gen->noise_size);
+						val = poly_noise_func(
+							arg_amp, 
+							gen->freq * gen->noise_mult, 
+							&(gen->noise_counter), 
+							&(gen->noise_state), 
+							gen->noise_tap, 
+							gen->noise_size, 
+							(chan == 0)); // Only enable shifting if it's #0
 						break;
 					default:
 						DEBUG_MSG("waveform not yet implemented");

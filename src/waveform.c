@@ -33,32 +33,35 @@ float poly_loopsample_func(poly_sample *s, float amplitude, float freq, float ph
 	return (s->data[idx]) * coef;
 }
 
-float poly_noise_func(float amplitude, float freq, unsigned int *counter, unsigned int *noise_state, unsigned int tap, unsigned int size)
+float poly_noise_func(float amplitude, float freq, unsigned int *counter, unsigned int *noise_state, unsigned int tap, unsigned int size, int shift)
 {
 	// Freq is used to calculate the limit *counter must reach before a
 	// shift is registered. *counter should point to an integer kept for
 	// each generator. Phase is not used for noise.
 	float coef = amplitude * POLY_MAX_AMP;
-	if (*counter == 0)
+	if (shift)
 	{
-		*counter = (unsigned int)(poly_format->rate / (float)freq);
-		// Shift noise_state over to the right 1, and give it the tap bit as a feedback
-		int bit0 = *noise_state & 1;
-		int tap_bit = (*noise_state & (2 << tap)) ? 1 : 0;
-		tap_bit = tap_bit ^ bit0;
-		*noise_state = (tap_bit << size) | (*noise_state >> 1);
-
-		// Feedback bit should be the leftmost bit
-		if (*noise_state > (unsigned int)(2 << tap))
+		if (*counter == 0)
 		{
-			*noise_state -= (2 << tap);
+			*counter = (unsigned int)(poly_format->rate / (float)freq);
+			// Shift noise_state over to the right 1, and give it the tap bit as a feedback
+			int bit0 = *noise_state & 1;
+			int tap_bit = (*noise_state & (2 << tap)) ? 1 : 0;
+			tap_bit = tap_bit ^ bit0;
+			*noise_state = (tap_bit << size) | (*noise_state >> 1);
+	
+			// Feedback bit should be the leftmost bit
+			if (*noise_state > (unsigned int)(2 << tap))
+			{
+				*noise_state -= (2 << tap);
+			}
+	
 		}
-
-	}
-	else
-	{
-		// Decrement the counter
-		*counter -= 1;
+		else
+		{
+			// Decrement the counter
+			*counter -= 1;
+		}
 	}
 	// Use the last bit of noise_state as the output
 	float ret = (*noise_state & 1) ? 1.0 : -1.0;
