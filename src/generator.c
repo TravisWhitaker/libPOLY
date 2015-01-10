@@ -52,18 +52,24 @@ float poly_get_duty(int index)
 	return (poly_generators + index)->duty;
 }
 
-int poly_get_sample_bitdepth(int index)
-{
-	return (poly_generators + index)->sample_bitdepth;
-}
-
-int poly_get_sample_length(int index)
-{
-	return (poly_generators + index)->sample_length;
-}
-char *poly_get_sample(int index)
+poly_sample *poly_get_sample(int index)
 {
 	return (poly_generators + index)->sample;
+}
+
+unsigned int poly_get_noise_tap(int index)
+{
+	return (poly_generators + index)->noise_tap;
+}
+
+unsigned int poly_get_noise_size(int index)
+{
+	return (poly_generators + index)->noise_size;
+}
+
+unsigned int poly_get_noise_mult(int index)
+{
+	return (poly_generators + index)->noise_mult;
 }
 
 // Functions to set generator state.
@@ -171,40 +177,57 @@ void poly_set_duty(int index, float duty)
 	return;
 }
 
-void poly_set_sample_bitdepth(int index, int sample_bitdepth)
-{
-	(poly_generators + index)->sample_bitdepth = sample_bitdepth;
-	return;
-}
-
-void poly_set_sample_length(int index, int sample_length)
-{
-	(poly_generators + index)->sample_length = sample_length;
-	return;
-}
-
-void poly_set_sample(int index, char *sample)
+void poly_set_sample(int index, poly_sample *sample)
 {
 	(poly_generators + index)->sample = sample;
 	return;
 }
 
+void poly_set_noise_tap(int index, unsigned int tap)
+{
+	(poly_generators + index)->noise_tap = tap;
+}
+
+void poly_seed_noise(int index, unsigned int state)
+{
+	(poly_generators + index)->noise_state = state;
+}
+
+void poly_set_noise_size(int index, unsigned int size)
+{
+	(poly_generators + index)->noise_size = size;
+}
+
+void poly_set_noise_mult(int index, unsigned int mult)
+{
+	if (mult == 0)
+	{
+		mult = 1;
+	}
+	(poly_generators + index)->noise_mult = mult;
+}
+
 // Initialize a generator with sensible defaults.
 void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, float freq)
 {
-	(poly_generators + index)->init = 1;
-	(poly_generators + index)->mute = 0;
-	(poly_generators + index)->wavetype = wavetype;
-	(poly_generators + index)->amplitude = amplitude;
-	(poly_generators + index)->matrix[0] = 1.0;
-	(poly_generators + index)->matrix[1] = 1.0;
-	(poly_generators + index)->freq = freq;
-	(poly_generators + index)->phase = 0;
-	(poly_generators + index)->duty = 0.50;
-	(poly_generators + index)->sample_bitdepth = 16;
-	(poly_generators + index)->sample_length = 16;
-	(poly_generators + index)->sample = NULL;
+	poly_gen *gen = (poly_generators + index);
+	gen->init = 1;
+	gen->mute = 0;
+	gen->wavetype = wavetype;
+	gen->amplitude = amplitude;
+	gen->matrix[0] = 1.0;
+	gen->matrix[1] = 1.0;
+	gen->freq = freq;
+	gen->phase = 0;
+	gen->duty = 0.50;
+	gen->sample = NULL;
+	gen->noise_counter = 0; //  Noise init states match the NES
+	gen->noise_state = 1;
+	gen->noise_size = 15;
+	gen->noise_tap = 6;
+	gen->noise_mult = 2;
 	return;
+
 }
 
 void *poly_gen_kernel(void *ptr)
@@ -216,30 +239,65 @@ void *poly_gen_kernel(void *ptr)
 	{
 		for(register int chan = 0; chan < poly_format->channels; chan++)
 		{
+			gen = poly_generators;
 			for(register int i = 0; i < poly_max_generators; i++)
 			{
-				gen = poly_generators + i;
 				if(gen->init == 1 && gen->mute == 0)
 				{
+					float val = 0.0;
+					float arg_amp = gen->amplitude * gen->matrix[chan];
 					switch(gen->wavetype)
 					{
 					case poly_sine:
-						sample[chan] += (int16_t)(poly_clip(poly_sine_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
+						val = poly_sine_func(
+							arg_amp, 
+							gen->freq, 
+							gen->phase);
 						break;
 					case poly_square:
-						sample[chan] += (int16_t)(poly_clip(poly_square_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->duty, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
+						val = poly_square_func(
+							arg_amp, 
+							gen->freq, 
+							gen->duty, 
+							gen->phase);
 						break;
 					case poly_saw:
-						sample[chan] += (int16_t)(poly_clip(poly_saw_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
+						val = poly_saw_func(
+							arg_amp, 
+							gen->freq, 
+							gen->phase);
 						break;
 					case poly_triangle:
-						sample[chan] += (int16_t)(poly_clip(poly_triangle_func(gen->amplitude * gen->matrix[chan], gen->freq, gen->phase)/((float)poly_max_generators), POLY_MAX_AMP));
+						val = poly_triangle_func(
+							arg_amp, 
+							gen->freq, 
+							gen->phase);
+						break;
+					case poly_loopsample:
+						val = poly_loopsample_func(
+							gen->sample, 	
+							arg_amp, 
+							gen->freq, 
+							gen->phase);
+						break;
+					case poly_noise:
+						val = poly_noise_func(
+							arg_amp, 
+							gen->freq * gen->noise_mult, 
+							&(gen->noise_counter), 
+							&(gen->noise_state), 
+							gen->noise_tap, 
+							gen->noise_size, 
+							(chan == 0)); // Only enable shifting if it's #0
 						break;
 					default:
 						DEBUG_MSG("waveform not yet implemented");
 						break;
 					}
+					val = val / (float)poly_max_generators;
+					sample[chan] += poly_clip((int16_t)val,POLY_MAX_AMP);
 				}
+				gen = gen + 1;
 			}
 		}
 		poly_time++;
