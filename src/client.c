@@ -13,6 +13,11 @@
 #include <poly/client.h>
 #include <poly/debug.h>
 
+#define POLY_INIT_ERROR 1
+#define POLY_INIT_SUCCESS 0
+
+#define POLY_FORMAT_UNSET 1337
+
 char poly_ao_init;
 ao_device *poly_card;
 ao_sample_format *poly_format;
@@ -23,58 +28,86 @@ int poly_max_generators;
 poly_gen *poly_generators;
 uint64_t poly_time;
 
-// Initialize the libPOLY global state. Return 0 on success, 1 on error.
-int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename)
+int poly_validate_args(int bitdepth, int channels, int bitrate, int max_generators)
 {
 	// Make sure arguments are valid:
 	if(!((bitdepth == 8) || (bitdepth == 16) || (bitdepth == 24)))
 	{
 		DEBUG_MSG("bitdepth not one of 8, 16, 26");
 		errno = EINVAL;
-		return 1;
+		return 0;
 	}
 	if(!((channels == 1) || (channels == 2)))
 	{
 		DEBUG_MSG("channels not one of 1, 2");
 		errno = EINVAL;
-		return 1;
+		return 0;
 	}
 	if(!((bitrate == 44100) || (bitrate == 48000) || (bitrate == 96000)))
 	{
 		DEBUG_MSG("bitrate not one of 44100, 48000, 96000");
 		errno = EINVAL;
-		return 1;
+		return 0;
 	}
 	if(max_generators <= 0)
 	{
 		DEBUG_MSG("max_generators <= 0");
 		errno = EINVAL;
-		return 1;
+		return 0;
+	}
+	return 1;
+}
+
+// Set up libPOLY's global state, but do not initialize libAO.
+// this is intended for use with other means of getting the samples to a soundcard, and
+// a call to poly_start is not required after this. 
+int poly_init_min(int bitdepth, int channels, int bitrate, int max_generators)
+{
+	if (!poly_validate_args(bitdepth, channels, bitrate, max_generators))
+	{
+		return POLY_INIT_ERROR;
 	}
 
-	// Initialize libao:
-	ao_initialize();
-	poly_ao_init = 1;
-
-	poly_playback = 0;
+	poly_playback = 1;
 	poly_max_generators = max_generators;
+	poly_generators = calloc(poly_max_generators, sizeof(*poly_generators));
+	if (!poly_generators)
+	{
+		DEBUG_MSG("couldn't allocate memory for generators. Maybe too many?");
+		errno = ENOMEM;
+		return POLY_INIT_ERROR;
+	}
 	poly_time = 0;
 
-	int driver;
-
 	// Populate the format struct:
-	poly_format = calloc(1, sizeof(*poly_format));
+	// Note 01/13/15: this was sizeof(*poly_format) but I don't think that's right.
+	// If it's wrong, yell at me - moffitt
+	poly_format = calloc(1, sizeof(poly_format));
 	if(poly_format == NULL)
 	{
 		DEBUG_MSG("calloc for *poly_format failed");
 		errno = ENOMEM;
-		return 1;
+		return POLY_INIT_ERROR;
 	}
 	poly_format->bits = bitdepth;
 	poly_format->channels = channels;
 	poly_format->rate = bitrate;
-	poly_format->byte_format = AO_FMT_NATIVE;
+	poly_format->byte_format = POLY_FORMAT_UNSET;
+	return POLY_INIT_SUCCESS;
+}
+// Initialize the libPOLY global state. Return 0 on success, 1 on error.
+int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename)
+{
+	if (poly_init_min(bitdepth, channels, bitrate, max_generators) == POLY_INIT_ERROR)
+	{
+		return POLY_INIT_ERROR;
+	}
+	// Initialize libao:
+	ao_initialize();
+	poly_ao_init = 1;
 
+	poly_format->byte_format = AO_FMT_NATIVE;
+	int driver;
 	// Are we using a sound card?
 	if(filename == NULL)
 	{
@@ -85,7 +118,7 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 			DEBUG_MSG("ao_default_driver_id() failed");
 			errno = ENODEV;
 			free(poly_format);
-			return 1;
+			return POLY_INIT_ERROR;
 		}
 #else
 		driver = ao_driver_id("alsa");
@@ -94,7 +127,7 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 			DEBUG_MSG("ao_driver_id() failed");
 			errno = ENODEV;
 			free(poly_format);
-			return 1;
+			return POLY_INIT_ERROR;
 		}
 #endif
 		poly_card = ao_open_live(driver, poly_format, NULL);
@@ -119,7 +152,7 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 				break;
 			}
 			free(poly_format);
-			return 1;
+			return POLY_INIT_ERROR;
 		}
 	}
 	// We're using an output file:
@@ -131,7 +164,7 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 			DEBUG_MSG("libao error, can't open WAV driver");
 			errno = ENODEV;
 			free(poly_format);
-			return 1;
+			return POLY_INIT_ERROR;
 		}
 		poly_card = ao_open_file(driver, filename, 1, poly_format, NULL);
 		if(poly_card == NULL)
@@ -155,13 +188,12 @@ int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const
 				break;
 			}
 			free(poly_format);
-			return 1;
+			return POLY_INIT_ERROR;
 		}
 	}
 
-	poly_generators = calloc(poly_max_generators, sizeof(*poly_generators));
-
-	return 0;
+	poly_playback = 0; // Unset this, it should not be set until the thread is started.
+	return POLY_INIT_SUCCESS;
 }
 
 // De-initialize the libPOLY environment.

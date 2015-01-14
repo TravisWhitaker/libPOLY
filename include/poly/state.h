@@ -40,6 +40,10 @@ typedef struct
 } poly_gen;
 
 
+// Generates a single 44.1khz 1-bit sample and increments poly_time
+// sample should be a [n channels] long array
+extern void poly_next_frame(int16_t *frame);
+
 // Generator thread main loop:
 extern void *poly_gen_kernel(void *ptr);
 

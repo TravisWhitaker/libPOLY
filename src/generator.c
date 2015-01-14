@@ -221,88 +221,95 @@ void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, flo
 	gen->phase = 0;
 	gen->duty = 0.50;
 	gen->sample = NULL;
-	gen->noise_counter = 0; //  Noise init states match the NES
+	gen->noise_counter = 0;
 	gen->noise_state = 1;
-	gen->noise_size = 15;
+	gen->noise_size = 31;
 	gen->noise_tap = 6;
 	gen->noise_mult = 2;
 	return;
 
 }
 
+void poly_next_frame(int16_t *frame)
+{
+	memset(frame, 0, (sizeof(int16_t) * poly_format->channels));
+	for (register int chan = 0; chan < poly_format->channels; chan++)
+	{
+		poly_gen *gen = poly_generators;
+		for(register int i = 0; i < poly_max_generators; i++)
+		{
+			if(gen->init == 1 && gen->mute == 0)
+			{
+				float val = 0.0;
+				float arg_amp = gen->amplitude * gen->matrix[chan];
+				switch(gen->wavetype)
+				{
+				case poly_sine:
+					val = poly_sine_func(
+						arg_amp, 
+						gen->freq, 
+						gen->phase);
+					break;
+				case poly_square:
+					val = poly_square_func(
+						arg_amp, 
+						gen->freq, 
+						gen->duty, 
+						gen->phase);
+					break;
+				case poly_saw:
+					val = poly_saw_func(
+						arg_amp, 
+						gen->freq, 
+						gen->phase);
+					break;
+				case poly_triangle:
+					val = poly_triangle_func(
+						arg_amp, 
+						gen->freq, 
+						gen->phase);
+					break;
+				case poly_loopsample:
+					val = poly_loopsample_func(
+						gen->sample, 	
+						arg_amp, 
+						gen->freq, 
+						gen->phase);
+					break;
+				case poly_noise:
+					val = poly_noise_func(
+						arg_amp, 
+						gen->freq * gen->noise_mult, 
+						&(gen->noise_counter), 
+						&(gen->noise_state), 
+						gen->noise_tap, 
+						gen->noise_size, 
+						(chan == 0)); // Only enable shifting if it's #0
+					break;
+				default:
+					DEBUG_MSG("waveform not yet implemented");
+					break;
+				}
+				val = val / (float)poly_max_generators;
+				frame[chan] += poly_clip((int16_t)val,POLY_MAX_AMP);
+			}
+			gen = gen + 1;
+		}	
+	}
+	poly_time++;
+}
+
 void *poly_gen_kernel(void *ptr)
 {
 	((void)ptr);
+	// We will modify this sample and present it as one frame
 	int16_t *sample = calloc(poly_format->channels, sizeof(*sample));
-	poly_gen *gen;
-	while(poly_playback == 1)
+	while(poly_playback == 1) 
 	{
-		for(register int chan = 0; chan < poly_format->channels; chan++)
-		{
-			gen = poly_generators;
-			for(register int i = 0; i < poly_max_generators; i++)
-			{
-				if(gen->init == 1 && gen->mute == 0)
-				{
-					float val = 0.0;
-					float arg_amp = gen->amplitude * gen->matrix[chan];
-					switch(gen->wavetype)
-					{
-					case poly_sine:
-						val = poly_sine_func(
-							arg_amp, 
-							gen->freq, 
-							gen->phase);
-						break;
-					case poly_square:
-						val = poly_square_func(
-							arg_amp, 
-							gen->freq, 
-							gen->duty, 
-							gen->phase);
-						break;
-					case poly_saw:
-						val = poly_saw_func(
-							arg_amp, 
-							gen->freq, 
-							gen->phase);
-						break;
-					case poly_triangle:
-						val = poly_triangle_func(
-							arg_amp, 
-							gen->freq, 
-							gen->phase);
-						break;
-					case poly_loopsample:
-						val = poly_loopsample_func(
-							gen->sample, 	
-							arg_amp, 
-							gen->freq, 
-							gen->phase);
-						break;
-					case poly_noise:
-						val = poly_noise_func(
-							arg_amp, 
-							gen->freq * gen->noise_mult, 
-							&(gen->noise_counter), 
-							&(gen->noise_state), 
-							gen->noise_tap, 
-							gen->noise_size, 
-							(chan == 0)); // Only enable shifting if it's #0
-						break;
-					default:
-						DEBUG_MSG("waveform not yet implemented");
-						break;
-					}
-					val = val / (float)poly_max_generators;
-					sample[chan] += poly_clip((int16_t)val,POLY_MAX_AMP);
-				}
-				gen = gen + 1;
-			}
-		}
-		poly_time++;
-		ao_play(poly_card, (char *)sample, (sizeof(int16_t) * poly_format->channels));
-		memset(sample, 0, (sizeof(int16_t) * poly_format->channels));
+		poly_next_frame(sample); 
+		// Send to sound device, block until frame requested
+		uint32_t frame_size = (sizeof(int16_t) * poly_format->channels);
+		ao_play(poly_card, (char *)sample, frame_size);
 	}
 	free(sample);
 	return NULL;
