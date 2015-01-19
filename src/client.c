@@ -69,6 +69,7 @@ int poly_init_min(int bitdepth, int channels, int bitrate, int max_generators)
 	}
 
 	poly_playback = 1;
+	poly_ao_init = 1; // TODO: Remove this hack, have it check when needed only
 	poly_max_generators = max_generators;
 	poly_generators = calloc(poly_max_generators, sizeof(*poly_generators));
 	if (!poly_generators)
@@ -92,7 +93,7 @@ int poly_init_min(int bitdepth, int channels, int bitrate, int max_generators)
 	poly_format->bits = bitdepth;
 	poly_format->channels = channels;
 	poly_format->rate = bitrate;
-	poly_format->byte_format = POLY_FORMAT_UNSET;
+	poly_format->byte_format = AO_FMT_NATIVE;
 	return POLY_INIT_SUCCESS;
 }
 // Initialize the libPOLY global state. Return 0 on success, 1 on error.
@@ -223,6 +224,11 @@ void poly_shutdown()
 		poly_generators = NULL;
 	}
 	return;
+}
+
+void poly_start_min()
+{
+	poly_playback = 1;
 }
 
 // Start real-time playback.

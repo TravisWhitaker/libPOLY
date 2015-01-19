@@ -23,11 +23,12 @@ typedef struct poly_sample
 
 // Functions to manage global libPOLY state:
 int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename);
-void poly_shutdown();
+void poly_shutdown(void);
 
 // Start and stop playback:
-int poly_start();
-void poly_stop();
+void poly_start_min(void);
+int poly_start(void);
+void poly_stop(void);
 
 // Functions to get generator state:
 char poly_get_init(int index);
@@ -63,4 +64,6 @@ void poly_set_noise_mult(int index, unsigned int mult);
 // Initialize a generator with usable defaults:
 void poly_init_generator(int index, poly_wavetype wavetype, float amplitute, float freq);
 
+// For attachment to a sample stream besides libao:
+void poly_next_frame(int16_t *frame);
 #endif
