@@ -44,16 +44,10 @@ typedef struct
 // sample should be a [n channels] long array
 extern void poly_next_frame(int16_t *frame);
 
-// Generator thread main loop:
-extern void *poly_gen_kernel(void *ptr);
-
 // libao stuff:
 extern char poly_ao_init;
-extern ao_device *poly_card;
-extern ao_sample_format *poly_format;
 
 // Playback bookkeeping:
-extern pthread_t poly_thread;
 extern char poly_playback;
 extern int poly_max_generators;
 extern poly_gen *poly_generators;

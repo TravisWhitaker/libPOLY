@@ -145,8 +145,8 @@ void poly_set_freq(int index, float freq)
 {
 	if(freq > 0.0)
 	{
-		(poly_generators + index)->phase = -((((float)poly_time/(poly_format->rate)) -
-		((fmodf(((float)poly_time/(poly_format->rate)) + ((poly_generators + index)->phase)
+		(poly_generators + index)->phase = -((((float)poly_time/(44100)) -
+		((fmodf(((float)poly_time/(44100)) + ((poly_generators + index)->phase)
 		*(1.0/((poly_generators + index)->freq)), (1.0/((poly_generators + index)->freq)))/
 		(1.0/((poly_generators + index)->freq)))*(1.0/freq)))/(1.0/freq));
 		(poly_generators + index)->freq = freq;
@@ -232,8 +232,8 @@ void poly_init_generator(int index, poly_wavetype wavetype, float amplitude, flo
 
 void poly_next_frame(int16_t *frame)
 {
-	memset(frame, 0, (sizeof(int16_t) * poly_format->channels));
-	for (register int chan = 0; chan < poly_format->channels; chan++)
+	memset(frame, 0, (sizeof(int16_t) * 2));
+	for (register int chan = 0; chan < 2; chan++)
 	{
 		poly_gen *gen = poly_generators;
 		for(register int i = 0; i < poly_max_generators; i++)
@@ -297,20 +297,4 @@ void poly_next_frame(int16_t *frame)
 		}	
 	}
 	poly_time++;
-}
-
-void *poly_gen_kernel(void *ptr)
-{
-	((void)ptr);
-	// We will modify this sample and present it as one frame
-	int16_t *sample = calloc(poly_format->channels, sizeof(*sample));
-	while(poly_playback == 1) 
-	{
-		poly_next_frame(sample); 
-		// Send to sound device, block until frame requested
-		uint32_t frame_size = (sizeof(int16_t) * poly_format->channels);
-		ao_play(poly_card, (char *)sample, frame_size);
-	}
-	free(sample);
-	return NULL;
 }
