@@ -3,6 +3,10 @@
 
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.141592653589793
+#endif
+
 #include <poly/state.h>
 #include <poly/waveform.h>
 #include <poly/debug.h>

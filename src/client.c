@@ -14,8 +14,6 @@
 
 #define POLY_FORMAT_UNSET 1337
 
-char poly_ao_init;
-
 char poly_playback;
 int poly_max_generators;
 poly_gen *poly_generators;
@@ -51,9 +49,6 @@ int poly_validate_args(int bitdepth, int channels, int bitrate, int max_generato
 	return 1;
 }
 
-// Set up libPOLY's global state, but do not initialize libAO.
-// this is intended for use with other means of getting the samples to a soundcard, and
-// a call to poly_start is not required after this. 
 int poly_init_min(int bitdepth, int channels, int bitrate, int max_generators)
 {
 	if (!poly_validate_args(bitdepth, channels, bitrate, max_generators))
@@ -62,7 +57,6 @@ int poly_init_min(int bitdepth, int channels, int bitrate, int max_generators)
 	}
 
 	poly_playback = 1;
-	poly_ao_init = 1; // TODO: Remove this hack, have it check when needed only
 	poly_max_generators = max_generators;
 	poly_generators = calloc(poly_max_generators, sizeof(*poly_generators));
 	if (!poly_generators)
@@ -76,16 +70,20 @@ int poly_init_min(int bitdepth, int channels, int bitrate, int max_generators)
 	// Populate the format struct:
 	return POLY_INIT_SUCCESS;
 }
+
 // Initialize the libPOLY global state. Return 0 on success, 1 on error.
 int poly_init(int bitdepth, int channels, int bitrate, int max_generators, const char *filename)
 {
+	// With LibAO snipped out, this is mostly a wrapper for poly_init_min
 	if (poly_init_min(bitdepth, channels, bitrate, max_generators) == POLY_INIT_ERROR)
 	{
 		return POLY_INIT_ERROR;
 	}
+
+	// What is this doing here? - Moffitt
 	char *f = (char *)filename;
 	f++;
-	poly_ao_init = 1;
+
 	return POLY_INIT_SUCCESS;
 }
 
@@ -104,14 +102,9 @@ void poly_shutdown()
 	return;
 }
 
-void poly_start_min()
-{
-	poly_playback = 1;
-}
-
 int poly_start()
 {
-	poly_start_min();
+	poly_playback = 1;
 	return 0;
 }
 

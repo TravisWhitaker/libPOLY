@@ -4,8 +4,6 @@
 
 #include <math.h>
 
-#include <ao/ao.h>
-
 #include <poly/state.h>
 #include <poly/waveform.h>
 #include <poly/generator.h>
@@ -140,16 +138,21 @@ void poly_bump_freq(int index, float freq)
 
 // Change a generator's frequency, ensuring signal continuity
 // by computing a phase offset. It is safe to call this function
-// as often as possible.
+// as often as needed.
 void poly_set_freq(int index, float freq)
 {
 	if(freq > 0.0)
 	{
-		(poly_generators + index)->phase = -((((float)poly_time/(44100)) -
-		((fmodf(((float)poly_time/(44100)) + ((poly_generators + index)->phase)
-		*(1.0/((poly_generators + index)->freq)), (1.0/((poly_generators + index)->freq)))/
-		(1.0/((poly_generators + index)->freq)))*(1.0/freq)))/(1.0/freq));
-		(poly_generators + index)->freq = freq;
+		poly_gen *g = (poly_generators + index);
+		float t_over_rate = (float)poly_time/(44100);
+		float gen_freq_rec = (1.0 / ((poly_generators + index)->freq));
+		float new_freq_rec = (1.0 / freq);
+		float fmodf_ret = fmodf(t_over_rate + g->phase * gen_freq_rec, gen_freq_rec);
+
+		// This is one of the last remaining functions from T220-width hell
+		g->phase = -((t_over_rate - ((fmodf_ret / gen_freq_rec) * new_freq_rec)) / new_freq_rec);
+
+		g->freq = freq;
 	}
 	else
 	{
