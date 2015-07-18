@@ -56,14 +56,13 @@ generator.o.debug: src/generator.c
 waveform.o.debug: src/waveform.c
 	$(CC) -c $(DEBUG_CFLAGS) $(INCLUDE) $(FPIC) src/waveform.c -o waveform.o.debug
 
+DESTDIR ?= /usr/local
+
 .PHONY: install
-install:
-	cp libpoly.a /usr/local/lib/
-	chown root /usr/local/lib/libpoly.a
-	chmod 0755 /usr/local/lib/libpoly.a
-	cp include/poly.h /usr/local/include/
-	chown root /usr/local/include/poly.h
-	chmod 0755 /usr/local/include/poly.h
+install: shared libpoly.a
+	install -m 0755 libpoly.a $(DESTDIR)/lib
+	install -m 0755 include/poly.h $(DESTDIR)/include
+	install -m 0755 libpoly.so $(DESTDIR)/lib
 
 .PHONY: clean
 clean:
